@@ -11,8 +11,8 @@ BASE_X, BASE_Y = 400, 30
 
 def draw_rectangle_path(t):
     """사각형 경로: 캔버스를 거의 꽉 채우는 사각형"""
-    # 사각형의 네 모서리 좌표 - 가로를 더 길게 수정
-    corners = [(BASE_X, BASE_Y), (750, BASE_Y), (750, 500), (50, 500), (50, BASE_Y)]
+    # 사각형의 네 모서리 좌표 - (400,30)에서 시작해서 오른쪽->위쪽->왼쪽->아래쪽->다시 (400,30)으로
+    corners = [(BASE_X, BASE_Y), (780, BASE_Y), (780, 550), (20, 550), (20, BASE_Y), (BASE_X, BASE_Y)]
 
     # 각 변의 길이 계산
     def distance(p1, p2):
@@ -42,9 +42,8 @@ def draw_rectangle_path(t):
 
 def draw_triangle_path(t):
     """삼각형 경로: (400,30)에서 시작해서 끝나는 이등변삼각형"""
-    # 이등변삼각형의 꼭짓점들 - 위 꼭짓점 (400, 550), 아래 두 꼭짓점을 (400,30) 중심으로 대칭 배치
-    # (400,30)에서 좌우로 300픽셀씩 떨어진 점들로 이등변삼각형 구성
-    vertices = [(BASE_X, BASE_Y), (400, 550), (100, BASE_Y), (BASE_X, BASE_Y)]
+    # 삼각형의 꼭짓점들 - (400,30) -> 오른쪽 밑 -> 위쪽 꼭짓점 -> 왼쪽 밑 -> (400,30)
+    vertices = [(BASE_X, BASE_Y), (780, BASE_Y), (400, 550), (20, BASE_Y), (BASE_X, BASE_Y)]
 
     def distance(p1, p2):
         return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
