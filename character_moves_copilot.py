@@ -97,17 +97,17 @@ while running:
     cycle_length = 150
     total_cycle_time = cycle_length * 3  # 사각형, 삼각형, 원
 
-    # 현재 위치 계산
+    # 현재 위치 계산 - 부드러운 전환을 위해 수정
     current_frame = frame % total_cycle_time
 
     if current_frame < cycle_length:  # 사각형
-        t = current_frame / (cycle_length - 1)
+        t = current_frame / cycle_length  # cycle_length - 1 대신 cycle_length 사용
         x, y = draw_rectangle_path(t)
     elif current_frame < cycle_length * 2:  # 삼각형
-        t = (current_frame - cycle_length) / (cycle_length - 1)
+        t = (current_frame - cycle_length) / cycle_length  # cycle_length - 1 대신 cycle_length 사용
         x, y = draw_triangle_path(t)
     else:  # 원
-        t = (current_frame - cycle_length * 2) / (cycle_length - 1)
+        t = (current_frame - cycle_length * 2) / cycle_length  # cycle_length - 1 대신 cycle_length 사용
         x, y = draw_circle_path(t)
 
     # 캐릭터 그리기
