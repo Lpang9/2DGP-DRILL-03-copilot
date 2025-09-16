@@ -11,88 +11,79 @@ BASE_X, BASE_Y = 400, 30
 
 def draw_rectangle_path(t):
     """사각형 경로: 캔버스를 거의 꽉 채우는 사각형"""
-    # 사각형의 네 모서리 좌표 (여백 50픽셀)
-    corners = [(100, 100), (700, 100), (700, 500), (100, 500)]
-
-    # 각 변의 길이에 따른 t 구간 분할
-    total_length = 600 + 400 + 600 + 400  # 사각형 둘레
-    segment_lengths = [600, 400, 600, 400]
-
-    # 현재 t가 어느 변에 있는지 찾기
-    current_t = t * total_length
-    accumulated = 0
-
-    for i, length in enumerate(segment_lengths):
-        if current_t <= accumulated + length:
-            # 현재 변에서의 진행도
-            segment_t = (current_t - accumulated) / length
-            start = corners[i]
-            end = corners[(i + 1) % 4]
-
-            x = start[0] + (end[0] - start[0]) * segment_t
-            y = start[1] + (end[1] - start[1]) * segment_t
-
-            # (400, 30)을 지나가도록 조정
-            if i == 0:  # 하단 변
-                if abs(x - BASE_X) < 10:
-                    y = BASE_Y
-
-            return x, y
-        accumulated += length
-
-    return corners[0]
-
-def draw_triangle_path(t):
-    """삼각형 경로: 이등변삼각형 (대각선 2개)"""
-    # 삼각형의 세 꼭짓점 (캔버스를 거의 꽉 채움)
-    vertices = [(400, 550), (100, 100), (700, 100)]  # 위쪽 꼭짓점, 왼쪽 아래, 오른쪽 아래
+    # 사각형의 네 모서리 좌표 - 가로를 더 길게 수정
+    corners = [(BASE_X, BASE_Y), (750, BASE_Y), (750, 500), (50, 500), (50, BASE_Y)]
 
     # 각 변의 길이 계산
     def distance(p1, p2):
         return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
 
-    side_lengths = [
-        distance(vertices[0], vertices[1]),  # 왼쪽 변
-        distance(vertices[1], vertices[2]),  # 아래 변
-        distance(vertices[2], vertices[0])   # 오른쪽 변
-    ]
+    segment_lengths = []
+    for i in range(len(corners) - 1):
+        segment_lengths.append(distance(corners[i], corners[i + 1]))
 
-    total_length = sum(side_lengths)
+    total_length = sum(segment_lengths)
     current_t = t * total_length
     accumulated = 0
 
-    for i, length in enumerate(side_lengths):
+    for i, length in enumerate(segment_lengths):
         if current_t <= accumulated + length:
             segment_t = (current_t - accumulated) / length
-            start = vertices[i]
-            end = vertices[(i + 1) % 3]
+            start = corners[i]
+            end = corners[i + 1]
 
             x = start[0] + (end[0] - start[0]) * segment_t
             y = start[1] + (end[1] - start[1]) * segment_t
 
-            # (400, 30)을 지나가도록 조정
-            if i == 1:  # 아래 변
-                if abs(x - BASE_X) < 10:
-                    y = BASE_Y
+            return x, y
+        accumulated += length
+
+    return corners[-1]  # 마지막 점 반환
+
+def draw_triangle_path(t):
+    """삼각형 경로: (400,30)에서 시작해서 끝나는 이등변삼각형"""
+    # 이등변삼각형의 꼭짓점들 - 위 꼭짓점 (400, 550), 아래 두 꼭짓점을 (400,30) 중심으로 대칭 배치
+    # (400,30)에서 좌우로 300픽셀씩 떨어진 점들로 이등변삼각형 구성
+    vertices = [(BASE_X, BASE_Y), (400, 550), (100, BASE_Y), (BASE_X, BASE_Y)]
+
+    def distance(p1, p2):
+        return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
+
+    segment_lengths = []
+    for i in range(len(vertices) - 1):
+        segment_lengths.append(distance(vertices[i], vertices[i + 1]))
+
+    total_length = sum(segment_lengths)
+    current_t = t * total_length
+    accumulated = 0
+
+    for i, length in enumerate(segment_lengths):
+        if current_t <= accumulated + length:
+            segment_t = (current_t - accumulated) / length
+            start = vertices[i]
+            end = vertices[i + 1]
+
+            x = start[0] + (end[0] - start[0]) * segment_t
+            y = start[1] + (end[1] - start[1]) * segment_t
 
             return x, y
         accumulated += length
 
-    return vertices[0]
+    return vertices[-1]
 
 def draw_circle_path(t):
-    """원 경로: 캔버스를 거의 꽉 채우는 원"""
+    """원 경로: (400, 30)에서 시작해서 한 바퀴 돌고 다시 (400, 30)으로"""
     center_x, center_y = 400, 300
-    radius = 250  # 캔버스를 거의 꽉 채우는 반지름
+    # (400, 30)이 원 위에 있도록 반지름 계산
+    radius = abs(center_y - BASE_Y)  # 270
 
-    # 원 위의 점 계산 (시계방향으로 회전)
-    angle = t * 2 * math.pi
+    # (400, 30)에서 시작하는 각도 계산
+    start_angle = -math.pi / 2  # 아래쪽에서 시작
+
+    # 시계방향으로 한 바퀴
+    angle = start_angle + t * 2 * math.pi
     x = center_x + radius * math.cos(angle)
     y = center_y + radius * math.sin(angle)
-
-    # (400, 30)을 지나가도록 조정 (가장 아래쪽 부분에서)
-    if abs(angle - math.pi/2) < 0.1:  # 아래쪽에서
-        y = BASE_Y
 
     return x, y
 
@@ -103,16 +94,21 @@ running = True
 while running:
     clear_canvas()
 
-    # 현재 시간 계산 (0~3 사이를 반복)
-    cycle_time = (frame // 100) % 3  # 100프레임마다 도형 변경
-    t = (frame % 100) / 99.0  # 0~1 사이의 값
+    # 전체 사이클을 더 길게 설정 (각 도형당 150프레임)
+    cycle_length = 150
+    total_cycle_time = cycle_length * 3  # 사각형, 삼각형, 원
 
-    # 현재 도형에 따라 위치 계산
-    if cycle_time == 0:  # 사각형
+    # 현재 위치 계산
+    current_frame = frame % total_cycle_time
+
+    if current_frame < cycle_length:  # 사각형
+        t = current_frame / (cycle_length - 1)
         x, y = draw_rectangle_path(t)
-    elif cycle_time == 1:  # 삼각형
+    elif current_frame < cycle_length * 2:  # 삼각형
+        t = (current_frame - cycle_length) / (cycle_length - 1)
         x, y = draw_triangle_path(t)
     else:  # 원
+        t = (current_frame - cycle_length * 2) / (cycle_length - 1)
         x, y = draw_circle_path(t)
 
     # 캐릭터 그리기
